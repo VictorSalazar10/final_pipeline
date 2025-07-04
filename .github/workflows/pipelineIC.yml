@@ -57,21 +57,30 @@ jobs:
           fi
 
   SCA:
-     runs-on: ubuntu-latest
-     needs: SAST  # <-- Ejecutar solo si SAST fue exitoso
-     steps:
+    runs-on: ubuntu-latest
+    needs: SAST
+    steps:
       - name: Descargar el repositorio
         uses: actions/checkout@v2
 
-      - name: Análisis SCA con OWASP Dependency-Check
+      - name: Instalar Java (requisito para Dependency-Check)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Descargar OWASP Dependency-Check
         run: |
-          docker run --rm \
-            -v "$(pwd):/src" \
-            owasp/dependency-check \
-            --project "${{ github.event.repository.name }}" \
-            --scan /src \
-            --format "HTML" \
-            --out /src/reports
+          curl -L -o dependency-check.zip https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check.zip
+          unzip dependency-check.zip -d dependency-check
+
+      - name: Ejecutar Dependency-Check
+        run: |
+          ./dependency-check/bin/dependency-check.sh \
+          --project "${{ github.event.repository.name }}" \
+          --scan . \
+          --format HTML \
+          --out reports
 
       - name: Subir reporte de vulnerabilidades como artefacto
         uses: actions/upload-artifact@v4
