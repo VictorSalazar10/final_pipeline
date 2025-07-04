@@ -36,6 +36,8 @@ jobs:
           fi
           set -e
       - name: Analizar codigo con SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           npx sonar-scanner \
             -Dsonar.projectKey=${{ github.event.repository.name }} \
