@@ -5,11 +5,19 @@ on:
       - feat_pipeline 
 
 jobs: 
-  TEST:
+  SAST:
     runs-on: ubuntu-latest
     steps:
       - name: Descargar el repositorio en el runner (Github)
         uses: actions/checkout@v2
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Ajusta a tu versión
+
+      - name: Instalar dependencias
+        run: npm install
         
       - name: Validando existencia de proyecto en SonarCloud
         id: validateProjectOnSonar
@@ -27,3 +35,14 @@ jobs:
             curl -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/project_branches/rename' -d 'name=main' -d 'project=${{ github.event.repository.name }}'
           fi
           set -e
+      - name: Analizar codigo con SonarCloud
+        run : | 
+          env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          npx sonar-scanner \
+            -Dsonar.projectKey=${{ github.event.repository.name }} \
+            -Dsonar.organization=inictel2025 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.branch.name=main
