@@ -19,6 +19,17 @@ jobs:
       - name: Instalar dependencias
         run: npm install
         
+      - name: Compilar y empaquetar
+        run: |
+          npm run build
+
+      - name: Upload build output
+        uses: actions/upload-artifact@master
+        with:
+          name: build-artifact
+          path: ${{ github.workspace }}/.next
+          include-hidden-files: true
+          
       - name: Validando existencia de proyecto en SonarCloud
         id: validateProjectOnSonar
         run: |
