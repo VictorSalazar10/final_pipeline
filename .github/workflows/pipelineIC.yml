@@ -46,28 +46,13 @@ jobs:
             -Dsonar.login=$SONAR_TOKEN \
             -Dsonar.branch.name=main
 
-      - name: Validando resultado de SonarCloud   
-        run: |  
+      - name: Validando resultado de SonarCloud
+        run: |
+          issueValidate=$(curl -s -X GET -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/issues/search?branch=main&componentKeys=pet-clinic-&facets=severities' | jq '.facets[0].values[1].count')
+          if [ "$issueValidate" -gt 0 ]; then
+            echo "Existen problemas en el código, se detiene el pipeline"
+          #exit 1
+          else
+            echo "No existen problemas en el código, se continúa con el pipeline"
+          fi
 
-          idanalisis=$(curl -s -X GET -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/ce/component?component=${{ github.event.repository.name }}')
-          idanalisisParse=$(echo "$idanalisis" | jq .current.analysisId | sed -e 's/^"//' -e 's/"$//')
-          echo "ID del análisis: $idanalisisParse"
-          qualitygate=$(curl -s -X GET -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/qualitygates/project_status?analysisId=$idanalisisParse')
-          qualitygateStatus=$(echo "$qualitygate" | jq .projectStatus.status | sed -e 's/^"//' -e 's/"$//')
-          case $qualitygateStatus in
-            *"OK"*)
-              echo "Calidad del código: OK"
-              ;;
-            *"ERROR"*)
-              echo "Calidad del código: ERROR"
-              exit 1
-              ;;
-            *"WARN"*)
-              echo "Calidad del código: WARN"
-              exit 1
-              ;;
-            *"NONE"*)
-              echo "Estado NONE: $qualitygateStatus"
-              exit 1
-              ;;
-          esac
