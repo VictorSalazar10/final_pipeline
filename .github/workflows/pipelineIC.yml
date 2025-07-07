@@ -172,7 +172,7 @@ jobs:
           docker pull vsvu1001/final_pipeline:latest
 
       - name : Ejecutar Docker Scan  -Trivy 
-        usess: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@master
         with: 
           image_ref: vsvu1001/final_pipeline:latest
           format: table
