@@ -174,7 +174,7 @@ jobs:
       - name : Ejecutar Docker Scan  -Trivy 
         uses: aquasecurity/trivy-action@master
         with: 
-          image_ref: vsvu1001/final_pipeline:latest
+          image-ref: vsvu1001/final_pipeline:latest
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL,HIGH,MEDIUM'
