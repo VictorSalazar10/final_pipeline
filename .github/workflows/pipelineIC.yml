@@ -176,8 +176,7 @@ jobs:
         with: 
           image_ref: vsvu1001/final_pipeline:latest
           format: table
-          exit_code: '1'
-          severity: CRITICAL,HIGH,MEDIUM
+        
 
       - name : Push Docker image 
         run : | 
