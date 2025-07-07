@@ -62,7 +62,7 @@ jobs:
           issueValidate=$(curl -s -X GET -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/issues/search?branch=main&componentKeys=pet-clinic-&facets=severities' | jq '.facets[0].values[1].count')
           if [ "$issueValidate" -gt 0 ]; then
             echo "Existen problemas en el código, se detiene el pipeline"
-          #exit 1
+          exit 1
           else
             echo "No existen problemas en el código, se continúa con el pipeline"
           fi
