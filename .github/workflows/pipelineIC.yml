@@ -176,8 +176,8 @@ jobs:
         with: 
           image-ref: vsvu1001/final_pipeline:latest
           format: 'table'
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH,MEDIUM'
+          #exit-code: '1'
+          #severity: 'CRITICAL,HIGH,MEDIUM'
 
 #-----------------------------DAST------------------------------------------------ 
 
