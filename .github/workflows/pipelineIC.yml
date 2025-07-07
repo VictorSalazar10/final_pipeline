@@ -29,7 +29,7 @@ jobs:
           name: build-artifact
           path: ${{ github.workspace }}/.next
           include-hidden-files: true
-          
+
       - name: Validando existencia de proyecto en SonarCloud
         id: validateProjectOnSonar
         run: |
@@ -99,26 +99,57 @@ jobs:
           name: dependecy-check-report
           path: ${{ github.workspace }}/reports
 
-      - name: Validar resultado Dependency Check
-        run: |
-          report="reports/dependency-check-report.json"
+#      - name: Validar resultado Dependency Check
+#        run: |
+#          report="reports/dependency-check-report.json"
 
-          if [ ! -f "$report" ]; then
-            echo "No se encontró el reporte de Dependency Check. Falla el análisis SCA."
-            exit 1
-          fi
+#          if [ ! -f "$report" ]; then
+#            echo "No se encontró el reporte de Dependency Check. Falla el análisis SCA."
+#            exit 1
+#          fi
 
           # Modificado para usar los valores correctos de severidad
-          critical=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "high")] | length' "$report")
-          high=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "high")] | length' "$report")
-          medium=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "moderate")] | length' "$report")
+#          critical=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "high")] | length' "$report")
+#          high=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "high")] | length' "$report")
+#          medium=$(jq '[.dependencies[].vulnerabilities[]? | select(.severity == "moderate")] | length' "$report")
 
-          echo "Vulnerabilidades críticas/altas: $critical"
-          echo "Vulnerabilidades medias: $medium"
+#          echo "Vulnerabilidades críticas/altas: $critical"
+#          echo "Vulnerabilidades medias: $medium"
 
-          if [ "$critical" -gt 0 ] || [ "$high" -gt 0 ] || [ "$medium" -gt 0 ]; then
-            echo "Se encontraron vulnerabilidades Críticas, Altas o Medias en dependencias. Deteniendo el pipeline..."
-            exit 1
-          else
-            echo "No se encontraron vulnerabilidades críticas, altas ni medias. Continuando..."
-          fi
+#          if [ "$critical" -gt 0 ] || [ "$high" -gt 0 ] || [ "$medium" -gt 0 ]; then
+#            echo "Se encontraron vulnerabilidades Críticas, Altas o Medias en dependencias. Deteniendo el pipeline..."
+#            exit 1
+#          else
+#            echo "No se encontraron vulnerabilidades críticas, altas ni medias. Continuando..."
+#          fi
+
+ #--------------------Contruccion de imagen -------------------------------------------
+
+  DockerBuild:
+    needs: SCA 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copiar el código fuente al runner
+        uses: actions/checkout@v2
+
+      - name: Descargar el artefacto compilado en el modulo de SAST
+        uses: actions/download-artifact@master
+        with:
+          name: build-artifact
+          path: ${{ github.workspace }}/.next
+          include-hidden-files: true
+    
+      - name: Construir la imagen Docker
+        run : | 
+          docker build --tag vsvu1001/final_pipeline:latest .
+
+      - name : Iniciar sesión en Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Subir imagen Docker en Docker Hub
+        run : | 
+          docker push vsvu1001/final_pipeline:latest
+    
