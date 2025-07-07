@@ -175,9 +175,8 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with: 
           image_ref: vsvu1001/final_pipeline:latest
-          format: table
-        
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH,MEDIUM'
 
-      - name : Push Docker image 
-        run : | 
-          docker push vsvu1001/final_pipeline:latest
+    
