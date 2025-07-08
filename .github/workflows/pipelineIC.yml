@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Crear red Docker
         run: |
-          docker network rm zap-net || true
+          docker network rm zap-net 
           docker network create zap-net
 
       - name: Desplegar aplicación
