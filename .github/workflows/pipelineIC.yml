@@ -3,8 +3,8 @@ on:
   push:
     branches:
       - feat_pipeline 
-
 jobs: 
+
   DAST:
     
     runs-on: self-hosted
@@ -29,13 +29,13 @@ jobs:
 
       - name: Mover reportes de ZAP al directorio reports
         run: |
-          mkdir -p reports
-          mv report_*.json reports/ 
-          mv report_*.md reports/ 
-          mv report_*.html reports/ 
+          mkdir -p reportes
+          mv report_*.json reportes/ 
+          mv report_*.md reportes/ 
+          mv report_*.html reportes/ 
 
       - name: Upload OWASP ZAP Report
         uses: actions/upload-artifact@master
         with:
           name: owasp-zap-report
-          path: ${{ github.workspace }}/reports
+          path: ${{ github.workspace }}/reportes
