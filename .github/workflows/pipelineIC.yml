@@ -6,7 +6,7 @@ on:
 
 jobs: 
   DAST:
-    needs: DockerBuild
+    
     runs-on: self-hosted
     steps:
       - name: Crear red Docker
