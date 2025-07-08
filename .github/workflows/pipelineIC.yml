@@ -200,7 +200,7 @@ jobs:
       shell: powershell
 
     - name: Subir reporte
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@master
       with:
         name: zap-report
         path: zap_report.html
