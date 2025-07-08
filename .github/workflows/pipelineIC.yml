@@ -197,5 +197,6 @@ jobs:
     - name : Ejecutar DAST con OWASP ZAP 
       uses: zaproxy/action-baseline@v0.11.0
       with:
-        target: 'http://localhost:3000'
+        target: 'http://localhost:3000/'
+        
       
