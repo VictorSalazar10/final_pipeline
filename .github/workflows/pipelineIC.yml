@@ -5,12 +5,6 @@ on:
       - feat_pipeline 
 
 jobs: 
-
-
-#-----------------------------DAST------------------------------------------------ 
-
-  
-
   DAST:
     needs: DockerBuild
     runs-on: self-hosted
