@@ -16,13 +16,9 @@ jobs:
 
       - name: Desplegar aplicación
         run: |
-          docker run -d \
-            --rm \
-            --network zap-net \
-            --name reddit-clone-yt \
-            -p 3000:3000 \
-            vsvu1001/final_pipeline:latest
-
+          docker run -d --rm --network zap-net --name reddit-clone-yt -p 3000:3000 vsvu1001/final_pipeline:latest
+            
+          
       - name: Esperar que la aplicación esté lista
         run: |
           for i in {1..12}; do
