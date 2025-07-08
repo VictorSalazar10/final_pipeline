@@ -9,38 +9,58 @@ jobs:
 
 #-----------------------------DAST------------------------------------------------ 
 
+  
+
   DAST:
-    
+    needs: DockerBuild
     runs-on: self-hosted
     steps:
-    
-    - name : Desplegar Aplicacion en Docker
-      run : |
-        docker run -d -p 3000:3000 --name app_examen vsvu1001/final_pipeline:latest
+      - name: Crear red Docker
+        run: |
+          docker network rm zap-net || true
+          docker network create zap-net
 
-    - name  : Esperar 30 segundos para que la aplicación esté lista
-      run : |
-        sleep 10
+      - name: Desplegar aplicación
+        run: |
+          docker run -d \
+            --rm \
+            --network zap-net \
+            --name reddit-clone-yt \
+            -p 3000:3000 \
+            vsvu1001/final_pipeline:latest
 
-    - name: Escaneo con OWASP ZAP
-      run: |
-        docker run --rm \
-    
-        -v ${{ github.workspace }}:/zap/wrk/:rw \
-        ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-        -t http://app_examen:3000/ \
-        -J report_json.json -w report_md.md -r report_html.html \
-        -I
+      - name: Esperar que la aplicación esté lista
+        run: |
+          for i in {1..12}; do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "La aplicación está lista."
+              exit 0
+            fi
+            echo "Esperando que la aplicación responda..."
+            sleep 5
+          done
+          echo "La aplicación no respondió a tiempo."
+          exit 1
 
-    - name: Mover reportes de ZAP al directorio reports
-      run: |
-        mkdir -p reports
-        mv report_*.json reports/ || true
-        mv report_*.md reports/ || true
-        mv report_*.html reports/ || true
+      - name: Escaneo con OWASP ZAP
+        run: |
+          docker run --rm \
+          --network zap-net \
+          -v ${{ github.workspace }}:/zap/wrk/:rw \
+          ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+          -t http://reddit-clone-yt:3000/ \
+          -J report_json.json -w report_md.md -r report_html.html \
+          -I
 
-    - name: Upload OWASP ZAP Report
-      uses: actions/upload-artifact@master
-      with:
-        name: owasp-zap-report
-        path: ${{ github.workspace }}/reports
+      - name: Mover reportes de ZAP al directorio reports
+        run: |
+          mkdir -p reports
+          mv report_*.json reports/ || true
+          mv report_*.md reports/ || true
+          mv report_*.html reports/ || true
+
+      - name: Upload OWASP ZAP Report
+        uses: actions/upload-artifact@master
+        with:
+          name: owasp-zap-report
+          path: ${{ github.workspace }}/reports
