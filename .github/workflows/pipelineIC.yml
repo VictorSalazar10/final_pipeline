@@ -21,26 +21,12 @@ jobs:
           
       - name: Esperar que la aplicación esté lista
         run: |
-          for i in {1..12}; do
-            if curl -s http://localhost:3000 > /dev/null; then
-              echo "La aplicación está lista."
-              exit 0
-            fi
-            echo "Esperando que la aplicación responda..."
-            sleep 5
-          done
-          echo "La aplicación no respondió a tiempo."
-          exit 1
+          sleep 10
 
       - name: Escaneo con OWASP ZAP
         run: |
-          docker run --rm \
-          --network zap-net \
-          -v ${{ github.workspace }}:/zap/wrk/:rw \
-          ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-          -t http://reddit-clone-yt:3000/ \
-          -J report_json.json -w report_md.md -r report_html.html \
-          -I
+          docker run --rm --network zap-net -v ${{ github.workspace }}:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t http://reddit-clone-yt:3000/ -J report_json.json -w report_md.md -r report_html.html -I
+         
 
       - name: Mover reportes de ZAP al directorio reports
         run: |
