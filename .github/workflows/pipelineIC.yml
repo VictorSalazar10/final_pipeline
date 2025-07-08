@@ -194,9 +194,13 @@ jobs:
       run : |
         sleep 30
 
-    - name : Ejecutar DAST con OWASP ZAP 
-      uses: zaproxy/action-baseline@v0.11.0
+    - name: Ejecutar ZAP desde Windows
+      run: |
+        "C:\Program Files\ZAP\Zed Attack Proxy\zap.bat" -cmd -quickurl http://localhost:3000 -quickout zap_report.html
+      shell: powershell
+
+    - name: Subir reporte
+      uses: actions/upload-artifact@v3
       with:
-        target: 'http://localhost:3000/'
-        
-      
+        name: zap-report
+        path: zap_report.html
