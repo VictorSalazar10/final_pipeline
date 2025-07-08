@@ -20,15 +20,27 @@ jobs:
 
     - name  : Esperar 30 segundos para que la aplicación esté lista
       run : |
-        sleep 30
+        sleep 10
 
-    - name: Ejecutar ZAP desde Windows
+    - name: Escaneo con OWASP ZAP
       run: |
-        & "C:\Program Files\ZAP\Zed Attack Proxy\zap.bat" -cmd -quickurl http://localhost:3000 -quickout zap_report.html
-      shell: powershell
+        docker run --rm \
+        --network zap-net \
+        -v ${{ github.workspace }}:/zap/wrk/:rw \
+        ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+        -t http://app_examen:3000/ \
+        -J report_json.json -w report_md.md -r report_html.html \
+        -I
 
-    - name: Subir reporte
+    - name: Mover reportes de ZAP al directorio reports
+      run: |
+        mkdir -p reports
+        mv report_*.json reports/ || true
+        mv report_*.md reports/ || true
+        mv report_*.html reports/ || true
+
+    - name: Upload OWASP ZAP Report
       uses: actions/upload-artifact@master
       with:
-        name: zap-report
-        path: zap_report.html
+        name: owasp-zap-report
+        path: ${{ github.workspace }}/reports
